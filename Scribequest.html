@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ScribeQuest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #10202c url('https://img.itch.zone/aW1nLzE1MTIwNzgyLnBuZw==/original/D%2B3tbi.png') center center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><g fill='%23ffffff' stroke='%23000000' stroke-width='1'><rect x='2' y='2' width='2' height='2'/><rect x='2' y='4' width='2' height='2'/><rect x='2' y='6' width='2' height='2'/><rect x='2' y='8' width='2' height='2'/><rect x='2' y='10' width='2' height='2'/><rect x='4' y='4' width='2' height='2'/><rect x='4' y='6' width='2' height='2'/><rect x='6' y='6' width='2' height='2'/><rect x='6' y='8' width='2' height='2'/><rect x='8' y='9' width='2' height='2'/></g></svg>") 2 2, auto;
+  }
+
+  button, input, a { cursor: inherit; }
+
+  .stage {
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+    position: relative;
+  }
+
+  .sound-toggle {
+    position: absolute;
+    top: -8px;
+    right: 0;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(0,0,0,0.35);
+    border: none;
+    color: #fff;
+    padding: 6px 30px;
+    border-radius: 6px;
+  }
+
+  .title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 40px;
+    color: #29b43e;;
+    letter-spacing: 2px;
+    margin: 30px 0 40px;
+    text-shadow:
+      -2px -2px 0 #17331f, 2px -2px 0 #17331f,
+      -2px 2px 0 #17331f, 2px 2px 0 #17331f,
+      0 5px 0 #0c1f13;
+  }
+
+  .desc {
+    font-family: 'Pixelify Sans', monospace;
+    font-weight: 500;
+    font-size: 19px;
+    color: #0f180b;
+    margin: 0 0 26px;
+  }
+
+  .input-outer {
+    max-width: 460px;
+    margin: 0 auto 22px;
+    padding: 4px;
+    background: #17331f;
+    clip-path: polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+  }
+  .input-inner {
+    background: #dff0f7;
+    clip-path: polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+    padding: 4px 6px;
+  }
+  #reqBox {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #23404a;
+    padding: 8px;
+    resize: none;
+    text-align: center;
+  }
+  #reqBox:focus { outline: none; }
+  #reqBox::placeholder { color: #6f8a92; }
+
+  .row { display: flex; gap: 18px; justify-content: center; }
+
+  .pbtn-outer {
+    padding: 4px;
+    background: #17331f;
+    clip-path: polygon(8px 0,calc(100% - 8px)  0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+  }
+  .pbtn-inner {
+    background: linear-gradient(#5fc35f, #3ea23e);
+    clip-path: polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+    padding: 12px 26px;
+    font-family: 'Pixelify Sans', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #1c5c1c;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+  }
+  button.pbtn-inner { cursor: inherit; }
+  button.pbtn-inner:active { filter: brightness(0.9); }
+  a.pbtn-inner { text-decoration: none; }
+  button.pbtn-inner:disabled { opacity: 0.6; }
+
+  .status {
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: #fff;
+    background: rgba(10,20,14,0.55);
+    border-radius: 6px;
+    padding: 10px 14px;
+    white-space: pre-wrap;
+    min-height: 0;
+  }
+  .status:empty { padding: 0; }
+  .status .err { color: #ffb3b3; }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* --- result block: hidden until the doc is actually ready --- */
+  .result {
+    display: none;
+    margin-top: 18px;
+    animation: popIn 0.2s steps(6) both;
+  }
+  .result.show { display: block; }
+  @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .sticker { font-size: 38px; margin-bottom: 4px; }
+  .result-title {
+    font-family: 'Pixelify Sans', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: #b9f3b0;
+    text-shadow: 1px 1px 0 #17331f;
+    margin: 0 0 8px;
+  }
+  .result-file {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    color: #2a2015;
+    background: #e2d9bd;
+    border: 2px solid #4a3728;
+    padding: 5px 10px;
+    margin-bottom: 14px;
+    word-break: break-word;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <button class="sound-toggle" id="soundBtn" aria-pressed="false">♪ off</button>
+
+  <h1 class="title">MINI PLANNER</h1>
+  <p class="desc">Describe your quest and a pixel agent will plan it, gather its own clues, and return with a finished scroll.</p>
+
+  <div class="input-outer">
+    <div class="input-inner">
+      <textarea id="reqBox" rows="1" placeholder="Enter your request..."></textarea>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="pbtn-outer">
+      <button class="pbtn-inner" id="goBtn">START</button>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="result" id="result">
+    <div class="sticker">📜✨</div>
+    <p class="result-title">Your planner is ready!</p>
+    <div class="result-file" id="resultFile"></div>
+    <div class="row">
+      <div class="pbtn-outer">
+        <a class="pbtn-inner" id="downloadBtn">&darr; DOWNLOAD</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:8000';
+
+  // ---- tiny chiptune background loop (no external audio files) ----
+  let ctx, playing = false, timer = null, step = 0;
+  const notes = [392, 440, 523, 440, 392, 349, 392, 523];
+
+  function playNote(freq) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.value = freq;
+    g.gain.value = 0.05;
+    g.gain.setTargetAtTime(0, ctx.currentTime + 0.18, 0.05);
+    o.connect(g).connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.25);
+  }
+  function loop() {
+    playNote(notes[step % notes.length]);
+    step++;
+    timer = setTimeout(loop, 260);
+  }
+
+  const soundBtn = document.getElementById('soundBtn');
+  soundBtn.onclick = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    playing = !playing;
+    soundBtn.setAttribute('aria-pressed', String(playing));
+    soundBtn.textContent = playing ? '♪ on' : '♪ off';
+    if (playing) { ctx.resume(); loop(); } else { clearTimeout(timer); }
+  };
+
+  // ---- elements ----
+  const goBtn = document.getElementById('goBtn');
+  const statusEl = document.getElementById('status');
+  const resultEl = document.getElementById('result');
+  const resultFile = document.getElementById('resultFile');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  goBtn.onclick = async () => {
+    const request = document.getElementById('reqBox').value.trim();
+    if (!request) { statusEl.innerHTML = '<span class="err">tell me your quest first.</span>'; return; }
+
+    resultEl.classList.remove('show');
+    downloadBtn.removeAttribute('href');
+    downloadBtn.removeAttribute('download');
+
+    goBtn.disabled = true;
+    let seconds = 0;
+    statusEl.innerHTML = 'the agent is thinking, this can take 10-20s<span class="blink">...</span> (0s)';
+    const ticker = setInterval(() => {
+      seconds++;
+      statusEl.innerHTML = 'the agent is thinking, this can take 10-20s<span class="blink">...</span> (' + seconds + 's)';
+    }, 1000);
+
+    try {
+      const res = await fetch(API_BASE + '/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request })
+      });
+      const raw = await res.text();
+      if (!res.ok) throw new Error('server said: ' + res.status + ' - ' + raw.slice(0, 200));
+
+      const data = JSON.parse(raw);
+      const filename = data.download_url.split('/').pop();
+
+      statusEl.innerHTML = '';
+      resultFile.textContent = filename;
+      downloadBtn.href = API_BASE + data.download_url;
+      downloadBtn.setAttribute('download', filename);
+      resultEl.classList.add('show');
+    } catch (e) {
+      statusEl.innerHTML =
+        '<span class="err">the quest failed: ' + e.message + '</span>\ncheck uvicorn is running with CORS enabled.';
+    } finally {
+      clearInterval(ticker);
+      goBtn.disabled = false;
+    }
+  };
+</script>
+
+</body>
+</html>
