@@ -55,66 +55,105 @@ structure_document with the fully drafted content.
 """
 
 
-def execute_plan(user_request: str, plan: dict, max_turns: int = 6)-> dict:
+def execute_plan(user_request: str, plan: dict, max_turns: int = 6) -> dict:
     messages = [
         {"role": "system", "content": EXECUTOR_SYSTEM_PROMPT},
-        {"role": "user", "content" : f"User request : {user_request}\n\n...steps: {json.dumps(plan.get('steps', []))}...."}
+        {
+            "role": "user",
+            "content": (
+                f"User request: {user_request}\n\n"
+                f"Document type: {plan.get('document_type')}\n"
+                f"Assumptions made: {json.dumps(plan.get('assumptions', []))}\n"
+                f"Planned steps: {json.dumps(plan.get('steps', []))}\n\n"
+                "Execute these steps now and produce the final document via "
+                "structure_document."
+            ),
+        },
     ]
     tool_call_log = []
 
     for _ in range(max_turns):
-    
-        response = client.chat.completions.create(
-            model = "llama-3.3-70b-versatile",
-            messages=messages,
-            tools = TOOLS_SCHEMA,
-            tool_choice= "auto",
-            temperature = 0.4,
-            max_tokens = 6000
-        )        
-        msg = response.choices[0].message
-        print("\n" + "="*80)
-        print("RAW LLM RESPONSE")
-        print(msg.model_dump())
-        print("="*80 + "\n")
-        messages.append(msg)
+      response = None
+      last_error = None
+      for attempt in range(3):
+        try:
+          response = client.chat.completions.create(
+              model = "llama-3.3-70b-versatile",
+              messages=messages,
+              tools = TOOLS_SCHEMA,
+              tool_choice= "auto",
+              temperature = 0.4,
+              max_tokens = 6000
+          )
+          break
+        except Exception as e:
+          last_error = e
+          continue
         
-        if not msg.tool_calls:
-            messages.append({
-                "role" : "user",
-                "content" : "Please call structure_document now with your final content"
-            })
-            continue
+      if response is None:
+        return {
+          "title" : str(plan.get("document_type", "Generated Document")).title(),
+          "sections": [
+            {
+              "heading" : "Summary",
+              "content" : (
+                "The agent's model provider returned repeated errors while"
+                f"generating this document ({last_error}). Please try again"
+              ),
+            }
+          ],
+          "tool_calls": tool_call_log,
+        }        
+      msg = response.choices[0].message
+      print("\n" + "="*80)
+      print("RAW LLM RESPONSE")
+      print(msg.model_dump())
+      print("="*80 + "\n")
+      messages.append(msg)
+        
+      if not msg.tool_calls:
+          messages.append(
+            {
+              "role" : "user",
+              "content" : "Please call structure_document now with your final content"
+            }
+          )
+          continue
         
         
-        for tool_call in msg.tool_calls:
-            print("\nTool Name:", tool_call.function.name)
-            print("Arguments:", tool_call.function.arguments)
-            
-            fn_name = tool_call.function.name
-            fn_args = json.loads(tool_call.function.arguments)
-            tool_call_log.append({"tool":fn_name, "args": fn_args})
-            
-            if fn_name == "structure_document":
-                return {
-                    "title" : fn_args.get("title", "Generated Document"),
-                    "sections" : fn_args.get("sections", []),
-                    "tool_calls" : tool_call_log,
-                }
+      for tool_call in msg.tool_calls:
+          print("\nTool Name:", tool_call.function.name)
+          print("Arguments:", tool_call.function.arguments)
+          
+          fn_name = tool_call.function.name
+          fn_args = json.loads(tool_call.function.arguments)
+          tool_call_log.append({"tool":fn_name, "args": fn_args})
+          
+          if fn_name == "structure_document":
+              return {
+                  "title" : fn_args.get("title", "Generated Document"),
+                  "sections" : fn_args.get("sections", []),
+                  "tool_calls" : tool_call_log,
+              }
                 
-            fn = AVAILABLE_FUNCTIONS.get(fn_name)
-            result = fn(**fn_args) if fn else {"error": f"Unknown tool: {fn_name}"}
+          fn = AVAILABLE_FUNCTIONS.get(fn_name)
+          result = fn(**fn_args) if fn else {"error": f"Unknown tool: {fn_name}"}
             
-            messages.append({
-                "role" : "tool",
-                "tool_call_id" : tool_call.id,
-                "name" : fn_name,
-                "content": json.dumps(result),
-            })
+          messages.append({
+              "role" : "tool",
+              "tool_call_id" : tool_call.id,
+              "name" : fn_name,
+              "content": json.dumps(result),
+          })
             
     return{
         "title" : str(plan.get("document_type", "Generated Document")).title(),
-        "sections" : [{"heading" : "Summary", "content" : "The agent reached its turn limit..."}],
+        "sections" : [
+          {
+            "heading" : "Summary", 
+            "content" : "The agent reached its turn limit before finalizing structured content. This is safety cap, not crash."
+          }
+        ],
         "tool_calls" : tool_call_log,
         
     }
