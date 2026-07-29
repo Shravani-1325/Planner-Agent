@@ -75,6 +75,8 @@ def execute_plan(user_request: str, plan: dict, max_turns: int = 6) -> dict:
     for _ in range(max_turns):
       response = None
       last_error = None
+      
+      #>> Retry Block
       for attempt in range(3):
         try:
           response = client.chat.completions.create(
@@ -82,12 +84,25 @@ def execute_plan(user_request: str, plan: dict, max_turns: int = 6) -> dict:
               messages=messages,
               tools = TOOLS_SCHEMA,
               tool_choice= "auto",
-              temperature = 0.4,
-              max_tokens = 6000
+              temperature = max(0.4 - attempt * 0.15, 0.1), # getting stricter each retry
+              max_tokens = 6000,
           )
           break
         except Exception as e:
           last_error = e
+          error_text = str(e)
+          if "tool_use_failed" in error_text or "Failed to call a function" in error_text:
+            messages.append(
+              {
+                "role" : "user",
+                "content" : (
+                  "Your last attempt tried to write a tool call as plain text (e.g. <function=...>), which is invalid."
+                  "Do NOT write function calls as text."
+                  "Use the actual tool-calling mechanism to call get_mock_data or structure_document"
+                ),
+              }
+              
+            )
           continue
         
       if response is None:
