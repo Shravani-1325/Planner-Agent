@@ -68,7 +68,7 @@ def download_document(filename: str):
     
 @app.get("/")
 def root():
-    return {"status": "ok", "message":"POST a request to /agent to generate a document"}
+    return FileResponse("Scribequest.html")
 
 if __name__ == "__main__":
     import uvicorn
