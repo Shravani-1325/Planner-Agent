@@ -18,9 +18,9 @@
 
 ScribeQuest is an autonomous agent, not a simple chatbot. Give it one sentence — like *"create a project plan for launching a mobile app"* — and it independently decides what kind of planned document to produce, it plans its own steps, gathers supporting data using real tool calls, and returns a ready-to-download `.docx` file.
 
-> **Frontend:** a pixel-themed UI (`Scribequest.html`) served directly by the backend
-> **Backend:** FastAPI + Groq (Llama 3.3 70B) — deployed as a single Render web service
-> **Live URL:** <https://planner-agent-pwkf.onrender.com>
+- **Frontend:** a pixel-themed UI (`Scribequest.html`) served directly by the backend
+- **Backend:** FastAPI + Groq (Llama 3.3 70B) — deployed as a single Render web service
+- **Live URL:** <https://planner-agent-pwkf.onrender.com>
 
 ---
 
