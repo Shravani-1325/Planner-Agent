@@ -180,6 +180,10 @@
     <div class="pbtn-outer">
       <button class="pbtn-inner" id="goBtn">START</button>
     </div>
+
+    <div class = "pbtn-outer">
+      <button class = "pbtn-inner" id="clearBtn" style = background:linear-gradient(#c99b4a,#a97a2c)">RESTART</button>
+    </div>
   </div>
 
   <div class="status" id="status"></div>
@@ -231,6 +235,7 @@
 
   // ---- elements ----
   const goBtn = document.getElementById('goBtn');
+  const clearBtn = document.getElementById('clearBtn');
   const statusEl = document.getElementById('status');
   const resultEl = document.getElementById('result');
   const resultFile = document.getElementById('resultFile');
@@ -277,6 +282,15 @@
       goBtn.disabled = false;
     }
   };
+
+  clearBtn.onclick = () => {
+    document.getElementById('reqBox').value = '';
+    statusEl.innerHTML = '';
+    resultEl.classList.remove('show');
+    downloadBtn.removeAttribute('href');
+    downloadBtn.removeAttribute('download');
+  };
+  
 </script>
 
 </body>
