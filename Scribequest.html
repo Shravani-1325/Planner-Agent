@@ -28,6 +28,7 @@
     position: relative;
   }
 
+
   .sound-toggle {
     position: absolute;
     top: -8px;
@@ -53,6 +54,16 @@
       -2px 2px 0 #17331f, 2px 2px 0 #17331f,
       0 5px 0 #0c1f13;
   }
+
+  .title2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 23px;
+    color: #fff931fa;
+    letter-spacing: 3px;
+    margin: 30px 0 40px;
+    text-shadow: -2px 0px 0 #17331f, 2px -2px 0 #17331f, -2px 2px 0 #17331f, 2px 2px 0 #17331f, 0 5px 0 #0c1f13;
+  }  
+
 
   .desc {
     font-family: 'Pixelify Sans', monospace;
@@ -166,7 +177,8 @@
 <div class="stage">
   <button class="sound-toggle" id="soundBtn" aria-pressed="false">♪ off</button>
 
-  <h1 class="title">MINI PLANNER</h1>
+  <h1 class="title">SCRIBE QUEST</h1>
+  <h3 class = "title2">MINI PLANNER</h3>
   <p class="desc">Describe your quest and a pixel agent will plan it, gather its own clues, and return with a finished document.</p>
   <p class="desc">Developed by Shravani 💗</p>
 
@@ -199,6 +211,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
   const API_BASE = '';
