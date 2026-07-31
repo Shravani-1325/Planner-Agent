@@ -1,4 +1,4 @@
-# 📜 ScribeQuest — Autonomous Document Agent
+# 📜 ScribeQuest — Mini Planner Agent
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-black?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -8,7 +8,7 @@
 [![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=flat-square)]()
 
 **An autonomous AI agent that plans its own steps, calls real tools, and writes a finished Word document — from one plain-English request.**
-*Python AI Engineer — Autonomous Agents Assignment*
+
 
 [🚀 Live Demo](https://planner-agent-pwkf.onrender.com) · [📡 API Docs](https://planner-agent-pwkf.onrender.com/docs) · [📂 Repository](https://github.com/Shravani-1325/scribequest-agent)
 
@@ -16,7 +16,7 @@
 
 ## 1. Project Overview
 
-ScribeQuest is an autonomous agent, not a simple chatbot. Give it one sentence — like *"create a project plan for launching a mobile app"* — and it independently decides what kind of document to produce, plans its own steps, gathers supporting data using real tool calls, and returns a ready-to-download `.docx` file.
+ScribeQuest is an autonomous agent, not a simple chatbot. Give it one sentence — like *"create a project plan for launching a mobile app"* — and it independently decides what kind of planned document to produce, it plans its own steps, gathers supporting data using real tool calls, and returns a ready-to-download `.docx` file.
 
 > **Frontend:** a pixel-themed UI (`Scribequest.html`) served directly by the backend
 > **Backend:** FastAPI + Groq (Llama 3.3 70B) — deployed as a single Render web service
