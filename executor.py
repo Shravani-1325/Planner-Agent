@@ -38,12 +38,17 @@ duration (e.g. "learn ML in 1 month", "30-day fitness plan", "2-week onboarding"
     this case -- the schedule itself IS the document. You may add one short
     "Overview" section at the top (goal + total duration) and optionally a short
     "How to use this plan" note at the end -- nothing more.
+  - DEPTH: Each section must be 3-5 full paragraphs (aim for 250-350 words per
+    section, not 80-100) -- not bullet fragments, not a 2-3 sentence summary...
+  - Each time-unit section should be 150-250 words, covering specific sub-topics,
+    resources, and practice tasks for that period -- not a one-line summary of the week.
 
 CASE B -- The request is a business document that is NOT time-bound (a proposal,
 SOP, business report, technical design, etc.):
   - Build the document around the planned steps you were given, one section per
     step or logical group of steps.
-  - Each section: 3-5 full paragraphs, specific numbers/examples pulled from
+  - DEPTH : Each section must be 3-5 full paragraphs (aim for 250-350 words per
+   section, not 80-100), specific numbers/examples pulled from
     get_mock_data where useful, professional tone.
   - Aim for 6-8 sections, including an Executive Summary, Risks & Mitigations,
     Timeline/Milestones, and Conclusion/Next Steps where relevant to the document
@@ -85,7 +90,7 @@ def execute_plan(user_request: str, plan: dict, max_turns: int = 6) -> dict:
               tools = TOOLS_SCHEMA,
               tool_choice= "auto",
               temperature = max(0.4 - attempt * 0.15, 0.1), # getting stricter each retry
-              max_tokens = 6000,
+              max_tokens = 8000,
           )
           break
         except Exception as e:
